@@ -6,7 +6,7 @@
 
 ## 1. Base
 
-- **Start from Xubuntu 24.04 LTS ISO** (Ubuntu 24.04 + Xfce desktop, already lightweight — the right base for a 2-core / 3.7 GB machine).
+- **Start from Xubuntu 24.04.5 minimal ISO** (`xubuntu-24.04.5-minimal-amd64.iso`, 3.0 GB, verified live 2026-11-11: https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.5-minimal-amd64.iso) — Ubuntu 24.04 + Xfce, minimal variant (smaller download, smaller rootfs, faster build; we add only what we need). The workflow downloads it at build time — the base ISO is NOT stored in this repo.
 - Build method: **Cubic** (custom ISO builder) inside a **GitHub Actions workflow** (free cloud build; Christy's VM has only 7.5 GB disk, a full ISO build cannot run there).
 - Repo: `LinkVy-Os` on GitHub — **PUBLIC** (user decision 2026-11-11, revised from private: public = unlimited free Actions minutes; private = 2,000/month. Personal details must NOT go in the repo. The repo can be flipped back to private later if he ever wants.)
 - Result of each build: a bootable live ISO, published as a **GitHub Release** asset. v1.0 first.
@@ -39,7 +39,7 @@ Everything else (VS Code, VLC, GIMP, LibreOffice, OBS Studio, Inkscape, Telegram
 - GTK theme: dark, blue-purple accent. No Ubuntu orange anywhere.
 - Window controls, icons, panel styling: same Aurora Flow palette.
 - Panel layout: bottom dock (Brave, Files, Terminal, App Store, Settings) + small **Menu** button bottom-left (opens the App Launcher — Whisker Menu) + live clock at top-right.
-- **Home screen:** the prototype's Home (cards, clock, search, weather, Quick Access, Recent Files, System Overview) becomes a small fullscreen app built from the same HTML/CSS/JS, launched at login. It is the design reference — the prototype at `home-screen` artifact.
+- **Home screen:** the prototype's Home (cards, clock, search, weather, Quick Access, Recent Files, System Overview) becomes a small fullscreen app built from the same HTML/CSS/JS, launched at login. It is the design reference — the prototype at `home-screen` artifact. v1 scope: the themed Xfce desktop (aurora wallpaper + Arc-Dark + Brave default) ships first; the custom fullscreen Home app lands in a later release.
 - Lock Screen: Xfce lock screen themed with the Aurora Flow look; shows the live clock + Rohit name.
 - Name everywhere: **LinkVy OS** (not "Aurora Flow" — that is only the style name). Version in About: **v1.0**.
 - About credit: small "Based on Ubuntu" line (trademark rule: a modified version cannot be called Ubuntu; Linux Mint / Pop!_OS do exactly this).
@@ -65,7 +65,7 @@ Everything else (VS Code, VLC, GIMP, LibreOffice, OBS Studio, Inkscape, Telegram
 
 1. Check out repo (recipe + theme assets + wallpaper + installer config).
 2. Download Xubuntu 24.04 LTS ISO.
-3. Run Cubic (headless) with the recipe: remove/add packages (§2–§3), apply theme/wallpaper (§4), set defaults (Brave default, no Firefox), install the updater (§6) + version file, add the Home app.
+3. Remaster by hand (no Cubic — Cubic is GUI-driven, not scriptable): extract ISO → unsquashfs → chroot `build/customize.sh` (remove/add packages §2–§3, Brave, wallpaper + dark theme §4, updater §6 + version file) → mksquashfs → rebuild a bootable ISO reusing the original El Torito boot parameters (`build/build.sh`).
 4. Build the new ISO → upload as a workflow artifact + publish as GitHub Release `v1.0`.
 5. Download ISO → write to the 512 GB HP pen drive (Fedora Media Writer / balenaEtcher) → live USB test.
 
