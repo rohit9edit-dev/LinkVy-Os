@@ -18,6 +18,24 @@ mkdir -p "$WORK" "$OUT"
 cd "$WORK"
 echo "workspace: $WORK"
 
+echo "== [0/8] Ensure build tools (self-install with retries) =="
+# The workflow installs these too, but if that step ever hiccups the
+# build should not die here — install any missing tool, up to 3 tries.
+missing=0
+for t in unsquashfs mksquashfs xorriso rsvg-convert curl wget; do
+  command -v "$t" >/dev/null 2>&1 || missing=1
+done
+[ -f /usr/lib/ISOLINUX/isolinux.bin ] || missing=1
+if [ "$missing" = 1 ]; then
+  for i in 1 2 3; do
+    echo "installing build tools (attempt $i/3)..."
+    apt-get update -y && apt-get install -y squashfs-tools xorriso isolinux librsvg2-bin wget curl && break || sleep 15
+  done
+fi
+for t in unsquashfs mksquashfs xorriso rsvg-convert curl wget; do
+  command -v "$t" >/dev/null 2>&1 || { echo "ERROR: required tool missing after retries: $t"; exit 1; }
+done
+
 echo "== [1/8] Download base ISO =="
 curl -fL --retry 3 -o "$BASE_ISO_NAME" "$BASE_ISO_URL"
 ls -lh "$BASE_ISO_NAME"
