@@ -59,9 +59,22 @@ echo "== [4/8] Unpack the live filesystem =="
 #   minimal.live.squashfs (1.3G)  live desktop layer (top, wins on overlap)
 # unsquashfs cannot merge into an existing dir (fatal "File exists"),
 # so unpack each layer separately, then merge with the live layer on top.
+# unsquashfs exits non-zero when it cannot create device nodes
+# (environments without CAP_MKNOD). The missing static nodes are
+# harmless: [5/8] bind-mounts /dev over them, and the live system mounts
+# devtmpfs at boot. So tolerate the failure only when the tree clearly
+# extracted (spot-check the rootfs markers).
+unpack_layer () {
+  local dest="$1" src="$2"
+  if ! unsquashfs -d "$dest" "$src"; then
+    echo "unsquashfs exited non-zero for $src - checking the tree..."
+    [ -d "$dest/usr" ] && [ -f "$dest/etc/os-release" ] || { echo "ERROR: $src did not unpack"; exit 1; }
+    echo "tree looks complete; continuing (device nodes may be missing)"
+  fi
+}
 mkdir -p rootfs-minimal rootfs-live rootfs
-unsquashfs -d rootfs-minimal iso/casper/minimal.squashfs
-unsquashfs -d rootfs-live iso/casper/minimal.live.squashfs
+unpack_layer rootfs-minimal iso/casper/minimal.squashfs
+unpack_layer rootfs-live iso/casper/minimal.live.squashfs
 rsync -a rootfs-minimal/ rootfs/
 rsync -a rootfs-live/ rootfs/
 rm -rf rootfs-minimal rootfs-live
@@ -102,6 +115,12 @@ import shlex, subprocess, sys
 volid, out, isodir = sys.argv[1], sys.argv[2], sys.argv[3]
 raw = open("mkisofs_args.txt").read().strip()
 args = shlex.split(raw)
+# xorriso's report prints only the mkisofs options, one per line, with
+# NO "xorriso -as mkisofs" prefix (newer xorriso omits it). The rebuild
+# command must start with it, so strip any prefix that is there and add it.
+while args and args[0] in ("xorriso", "-as", "mkisofs"):
+    args.pop(0)
+args = ["xorriso", "-as", "mkisofs"] + args
 # The report line starts with "xorriso -as mkisofs ...". Replace -V and -o.
 saw_v = False
 saw_o = False
