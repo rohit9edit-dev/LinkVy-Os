@@ -10,12 +10,13 @@ set -euo pipefail
 VERSION="${VERSION:-1.0}"
 BASE_ISO_URL="${BASE_ISO_URL:-https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.5-minimal-amd64.iso}"
 BASE_ISO_NAME="$(basename "$BASE_ISO_URL")"
-WORK="$GITHUB_WORKSPACE/work"
-OUT="$GITHUB_WORKSPACE/output"
-REPO="$GITHUB_WORKSPACE"
+WORK="${GITHUB_WORKSPACE:-$PWD}/work"
+OUT="${GITHUB_WORKSPACE:-$PWD}/output"
+REPO="${GITHUB_WORKSPACE:-$PWD}"
 
 mkdir -p "$WORK" "$OUT"
 cd "$WORK"
+echo "workspace: $WORK"
 
 echo "== [1/8] Download base ISO =="
 curl -fL --retry 3 -o "$BASE_ISO_NAME" "$BASE_ISO_URL"

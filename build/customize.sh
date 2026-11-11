@@ -69,6 +69,15 @@ x-scheme-handler/https=brave-browser.desktop
 text/html=brave-browser.desktop
 EOF
 
+echo "== customize: login screen (LightDM greeter) =="
+# First thing seen at boot — make it ours too, not stock Xubuntu.
+cat > /etc/lightdm/lightdm-gtk-greeter.conf <<'EOF'
+[greeter]
+theme-name = Arc-Dark
+icon-theme-name = elementary-xfce-dark
+background = /usr/share/backgrounds/linkvy-aurora.png
+EOF
+
 echo "== customize: version + updater =="
 printf 'LINKVY_OS_NAME=LinkVy OS\nLINKVY_OS_VERSION=1.0\n' > /etc/linkvy-os-release
 # linkvy-update-check was copied to /usr/local/bin by build.sh
