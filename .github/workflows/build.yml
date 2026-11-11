@@ -11,12 +11,12 @@ on:
         description: "Publish the built ISO as a GitHub Release (v1.0)"
         type: boolean
         default: false
-    push:
-      branches: [main]
-      paths:
-        - ".github/workflows/build.yml"
-        - "build/**"
-        - "theme/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build.yml"
+      - "build/**"
+      - "theme/**"
 
 permissions:
   contents: write
