@@ -1,6 +1,6 @@
 # LinkVy OS v1.0 — Build Recipe
 
-**Status: DRAFT — waiting on GitHub connect (Step 3) before the cloud build (Step 5) can run.**
+**Status: IN PROGRESS — GitHub connected, repo `rohit9edit-dev/LinkVy-Os` live (public), README + recipe pushed 2026-11-11. Next: build workflow (§7), then the cloud build (Step 5).**
 **Date:** 2026-11-11
 **Target laptop:** HP Laptop 15q-by0xx, AMD A9-9420 dual-core, 3.7 GB RAM, 128 GB SSD (install target), Realtek RTL8723DE WiFi. Fedora 44 currently on it (to be wiped at install).
 
@@ -81,8 +81,8 @@ Everything else (VS Code, VLC, GIMP, LibreOffice, OBS Studio, Inkscape, Telegram
 
 ## 9. Steps after this recipe
 
-1. **GitHub connect** (user clicks the connect link) — BLOCKER, still pending as of 2026-11-11 11:41 IST.
-2. Create repo `linkvy-os`, push this recipe + workflow + assets.
+1. **GitHub connect** — DONE 2026-11-11 (account rohit9edit-dev, App installed, repo added).
+2. Create repo `LinkVy-Os`, push this recipe + workflow + assets. — DONE 2026-11-11 (repo created public; README + recipe pushed).
 3. Run the Actions build → ISO.
 4. Live USB test (his laptop, checklist above).
 5. Fixes + rebuild if needed.
