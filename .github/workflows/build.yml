@@ -11,12 +11,12 @@ on:
         description: "Publish the built ISO as a GitHub Release (v1.0)"
         type: boolean
         default: false
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/build.yml"
-      - "build/**"
-      - "theme/**"
+    push:
+      branches: [main]
+      paths:
+        - ".github/workflows/build.yml"
+        - "build/**"
+        - "theme/**"
 
 permissions:
   contents: write
@@ -31,9 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-
+      # maximize-build-space MUST run before checkout: it mounts a fresh
+      # volume over $GITHUB_WORKSPACE, hiding anything checked out earlier
+      # (that is why runs #1 and #3 failed with "build/build.sh: No such
+      # file or directory" even though the file is in the repo).
       - name: Free up disk space
         uses: easimon/maximize-build-space@v10
         with:
@@ -45,6 +46,9 @@ jobs:
           remove-codeql: "true"
           remove-docker-images: "true"
 
+      - name: Check out repo
+        uses: actions/checkout@v4
+
       - name: Install build tools
         run: |
           sudo apt-get update -y
@@ -52,6 +56,7 @@ jobs:
 
       - name: Build the ISO
         run: |
+          pwd && ls -la build/
           chmod +x build/build.sh
           sudo -E bash build/build.sh
 
