@@ -1,0 +1,81 @@
+name: Build LinkVy OS ISO
+
+# Builds the LinkVy OS live ISO from the Xubuntu 24.04.5 minimal ISO.
+# First run is a test run — expect failures and fix from the logs.
+# Public repo, so build minutes are unlimited.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Publish the built ISO as a GitHub Release (v1.0)"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build.yml"
+      - "build/**"
+      - "theme/**"
+
+permissions:
+  contents: write
+
+env:
+  VERSION: "1.0"
+  BASE_ISO_URL: "https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.5-minimal-amd64.iso"
+
+jobs:
+  build:
+    name: Build ISO
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Free up disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y squashfs-tools xorriso isolinux librsvg2-bin wget curl
+
+      - name: Build the ISO
+        run: |
+          chmod +x build/build.sh
+          sudo -E bash build/build.sh
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linkvy-os-v1.0-iso
+          path: output/linkvy-os-v1.0-amd64.iso
+          if-no-files-found: error
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: linkvy-os-v1.0-sha256
+          path: output/SHA256SUMS
+          if-no-files-found: error
+
+      - name: Create GitHub Release v1.0
+        if: ${{ inputs.release == true }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0
+          name: LinkVy OS v1.0
+          body: "LinkVy OS v1.0 — first build. Boot it live from a USB pen drive and test before installing."
+          files: |
+            output/linkvy-os-v1.0-amd64.iso
+            output/SHA256SUMS
